@@ -34,7 +34,7 @@ def upgrade():
     if migration_context.dialect.name == 'sqlite':
         new_id_type = sa.Integer
     else:
-        new_id_type = sa.BigInteger
+        new_id_type = sa.Integer
     # Create new tests table
     op.create_table('tests_new',
                     sa.Column('id', sa.String(36)),
@@ -128,7 +128,7 @@ def upgrade():
     if migration_context.dialect.name == 'postgresql':
         key_word = 'key'
     else:
-        key_word = '`key`'
+        key_word = '[key]'
     op.execute('INSERT INTO tests_new (id, test_id, run_count, success, '
                'failure, run_time) SELECT id, test_id, run_count, success, '
                'failure, run_time FROM tests')
@@ -144,11 +144,11 @@ def upgrade():
                'rn ON rn.id = tr.run_id INNER JOIN tests_new tn '
                'ON tn.id=tr.test_id')
     op.execute('INSERT INTO test_metadata_new (id, {}, value, test_id, '
-               'new_test_id) SELECT tm.id, tm.key, tm.value, tm.test_id, '
+               'new_test_id) SELECT tm.id, tm.[key], tm.value, tm.test_id, '
                'tn.new_id FROM test_metadata tm INNER JOIN tests_new tn '
                'ON tn.id = tm.test_id'.format(key_word))
     op.execute('INSERT INTO test_run_metadata_new (id, {}, value, '
-               'test_run_id, new_test_run_id) SELECT trm.id, trm.key, '
+               'test_run_id, new_test_run_id) SELECT trm.id, trm.[key], '
                'trm.value, trm.test_run_id, trn.new_id FROM test_run_metadata '
                'trm INNER JOIN test_runs_new trn ON trm.test_run_id = '
                'trn.id'.format(key_word))
@@ -158,7 +158,7 @@ def upgrade():
                'attachments a INNER JOIN test_runs_new trn '
                'ON a.test_run_id = trn.id')
     op.execute('INSERT INTO run_metadata_new (id, {}, value, run_id, '
-               'new_run_id) SELECT rm.id, rm.key, rm.value, rm.run_id, '
+               'new_run_id) SELECT rm.id, rm.[key], rm.value, rm.run_id, '
                'rn.new_id FROM run_metadata rm INNER JOIN runs_new rn '
                'ON rm.run_id = rn.id'.format(key_word))
 
@@ -226,7 +226,7 @@ def upgrade():
         with op.batch_alter_table("attachments_new") as batch_op:
             batch_op.drop_column('id')
             batch_op.alter_column('new_id', new_column_name='id',
-                                  primary_key=True,
+                                  #primary_key=True,
                                   existing_type=new_id_type,
                                   autoincrement=True)
             batch_op.drop_column('test_run_id')
@@ -236,7 +236,7 @@ def upgrade():
         with op.batch_alter_table("test_run_metadata_new") as batch_op:
             batch_op.drop_column('id')
             batch_op.alter_column('new_id', new_column_name='id',
-                                  primary_key=True,
+                                  #primary_key=True,
                                   existing_type=new_id_type,
                                   autoincrement=True)
             batch_op.drop_column('test_run_id')
@@ -246,7 +246,7 @@ def upgrade():
         with op.batch_alter_table("run_metadata_new") as batch_op:
             batch_op.drop_column('id')
             batch_op.alter_column('new_id', new_column_name='id',
-                                  primary_key=True,
+                                  #primary_key=True,
                                   existing_type=new_id_type,
                                   autoincrement=True)
             batch_op.drop_column('run_id')
@@ -255,7 +255,7 @@ def upgrade():
         with op.batch_alter_table("test_metadata_new") as batch_op:
             batch_op.drop_column('id')
             batch_op.alter_column('new_id', new_column_name='id',
-                                  primary_key=True,
+                                  #primary_key=True,
                                   existing_type=new_id_type,
                                   autoincrement=True)
             batch_op.drop_column('test_id')
@@ -264,7 +264,7 @@ def upgrade():
         with op.batch_alter_table("test_runs_new") as batch_op:
             batch_op.drop_column('id')
             batch_op.alter_column('new_id', new_column_name='id',
-                                  primary_key=True,
+                                  #primary_key=True,
                                   existing_type=new_id_type,
                                   autoincrement=True)
             batch_op.drop_column('test_id')
@@ -276,14 +276,14 @@ def upgrade():
         with op.batch_alter_table("tests_new") as batch_op:
             batch_op.drop_column('id')
             batch_op.alter_column('new_id', new_column_name='id',
-                                  primary_key=True,
+                                  #primary_key=True,
                                   existing_type=new_id_type,
                                   autoincrement=True)
         with op.batch_alter_table("runs_new") as batch_op:
             batch_op.alter_column('id', new_column_name='uuid',
                                   existing_type=sa.VARCHAR(36))
             batch_op.alter_column('new_id', new_column_name='id',
-                                  primary_key=True,
+                                  #primary_key=True,
                                   existing_type=new_id_type,
                                   autoincrement=True)
 
